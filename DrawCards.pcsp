@@ -1,4 +1,4 @@
-﻿var input[3] = [5,10,3];		// input for 2 player's initial hand, 1 dealer's visible hand
+﻿var input[3] = [10,3,8];		// input for 2 player's initial hand, 1 dealer's visible hand
 var card[10] = [4,4,4,4,4,4,4,4,4,16];
 var gamer_point[2] = [0,0]; // gamer[0] for dealer, gamer[1] for player, count for total points
 var gamer_hands[2] = [0,0];	// gamer[0] for dealer, gamer[1] for player, count the number of cards in hand
@@ -63,6 +63,7 @@ Game16 = GetInput;PlayerHit(16);
 Game17 = GetInput;PlayerHit(17);
 Game18 = GetInput;PlayerHit(18);
 Game19 = GetInput;PlayerHit(19);
+Game20 = GetInput;PlayerHit(20);
 Game21 = GetInput;PlayerHit(21); // for simulation only
 
 		
@@ -108,6 +109,9 @@ Drawn = set{flag = 0}->Skip;
 #define goal19 gamer_point[1]>=19;
 #assert Game19 reaches notlosing with prob;
 #assert Game19 reaches losing with prob;
+
+#assert Game20 reaches notlosing with prob;
+#assert Game20 reaches losing with prob;
 
 #assert Game21 reaches notlosing with prob;
 #assert Game21 reaches losing with prob;
