@@ -1,4 +1,4 @@
-﻿var input[3] = [10,3,8];		// input for 2 player's initial hand, 1 dealer's visible hand
+﻿var input[3] = [10,8,10];		// input for 2 player's initial hand, 1 dealer's visible hand
 var card[10] = [4,4,4,4,4,4,4,4,4,16];
 var gamer_point[2] = [0,0]; // gamer[0] for dealer, gamer[1] for player, count for total points
 var gamer_hands[2] = [0,0];	// gamer[0] for dealer, gamer[1] for player, count the number of cards in hand
@@ -20,7 +20,7 @@ Draw(i) = pcase{
 };
 
 // update the arrays and number of cards after initial input
-UpdateInput = update{
+GetInitialHand = update{
 	gamer_point[1] = gamer_point[1]+input[0]+input[1];
 	gamer_hands[1] = gamer_hands[1] + 2;
 	gamer_point[0] = gamer_point[0]+input[2];
@@ -28,22 +28,18 @@ UpdateInput = update{
 	card[input[0]-1]--;
 	card[input[1]-1]--;
 	card[input[2]-1]--;
-} -> Skip;
-
-GetInput = UpdateInput;
-			(dealerDraw->Draw(0));
-			[gamer_point[0]<=21]goNext->Skip[][gamer_point[0]>21]goesWin->Win;
+} -> Draw(0);
 			
 				// if total point exceed 21 player busts and loses
-PlayerHit(t) =	if(gamer_point[1] > 21){playerLose->Lose}
+PlayerHit(t) =	if(gamer_point[1] > 21){goLose -> Lose}
 				// according to strategy, if total point not reach t player continue drawing
 				else if(gamer_point[1]<t && gamer_hands[1] <5){Draw(1);PlayerHit(t)}
 				else{DealerHit};
 
 // dealer must keep drawing until he gets 17 points or busts
-DealerHit = if(gamer_point[0] > 21){dealerLose->Win}
+DealerHit = if(gamer_point[0] > 21){goWin -> Win}
 			else if(gamer_point[0] < 17 && gamer_hands[0] < 5){Draw(0);DealerHit}
-			else if(gamer_hands[0] == 5){dealerWin->Lose}
+			else if(gamer_hands[0] == 5){goLose -> Lose}
 			else {compareResult->Compare};
 
 			
@@ -53,23 +49,27 @@ Compare = [gamer_point[0] == gamer_point[1]]goDrawn->Drawn
 			[]
 			[gamer_point[0] > gamer_point[1]]goLose->Lose;
 			
-Game10 = GetInput;PlayerHit(10);
-Game11 = GetInput;PlayerHit(11);
-Game12 = GetInput;PlayerHit(12);
-Game13 = GetInput;PlayerHit(13);
-Game14 = GetInput;PlayerHit(14);
-Game15 = GetInput;PlayerHit(15);
-Game16 = GetInput;PlayerHit(16);
-Game17 = GetInput;PlayerHit(17);
-Game18 = GetInput;PlayerHit(18);
-Game19 = GetInput;PlayerHit(19);
-Game20 = GetInput;PlayerHit(20);
-Game21 = GetInput;PlayerHit(21); // for simulation only
+Game10 = GetInitialHand;PlayerHit(10);
+Game11 = GetInitialHand;PlayerHit(11);
+Game12 = GetInitialHand;PlayerHit(12);
+Game13 = GetInitialHand;PlayerHit(13);
+Game14 = GetInitialHand;PlayerHit(14);
+Game15 = GetInitialHand;PlayerHit(15);
+Game16 = GetInitialHand;PlayerHit(16);
+Game17 = GetInitialHand;PlayerHit(17);
+Game18 = GetInitialHand;PlayerHit(18);
+Game19 = GetInitialHand;PlayerHit(19);
+Game20 = GetInitialHand;PlayerHit(20);
+Game21 = GetInitialHand;PlayerHit(21); // for simulation only
 
 		
-Win = set{flag = 1}->Skip;
-Lose = set{flag = -1}->Skip;
-Drawn = set{flag = 0}->Skip;
+Win = playerWin{flag = 1}->R;
+Lose = playerLose{flag = -1}->R;
+Drawn = gameDraw{flag = 0}->R;
+
+R = end -> R;
+
+#assert Game10 deadlockfree;
 
 
 #define notlosing flag == 1 || flag == 0;
@@ -98,15 +98,12 @@ Drawn = set{flag = 0}->Skip;
 #assert Game16 reaches notlosing with prob;
 #assert Game16 reaches losing with prob;
 
-#define goal17 gamer_point[1]>=17;
 #assert Game17 reaches notlosing with prob;
 #assert Game17 reaches losing with prob;
 
-#define goal18 gamer_point[1]>=18;
 #assert Game18 reaches notlosing with prob;
 #assert Game18 reaches losing with prob;
 
-#define goal19 gamer_point[1]>=19;
 #assert Game19 reaches notlosing with prob;
 #assert Game19 reaches losing with prob;
 
